@@ -42,7 +42,7 @@ object MyBittexPortfolioMainForm: TMyBittexPortfolioMainForm
     Align = alClient
     TabOrder = 1
     object TabSheet1: TTabSheet
-      Caption = 'TabSheet1'
+      Caption = 'Bittrex Portfolio'
       object stgrWallet: TStringGrid
         Left = 0
         Top = 0

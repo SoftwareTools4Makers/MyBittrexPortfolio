@@ -1,8 +1,8 @@
-program MyBittrexPorfolio;
+program MyBittrexPortfolio;
 
 uses
   Vcl.Forms,
-  MyBittrexWalletMainFormUnit in 'MyBittrexWalletMainFormUnit.pas' {MyBittexPortfolioMainForm};
+  MyBittrexPortfolioMainFormUnit in 'MyBittrexPortfolioMainFormUnit.pas' {MyBittexPortfolioMainForm};
 
 {$R *.res}
 

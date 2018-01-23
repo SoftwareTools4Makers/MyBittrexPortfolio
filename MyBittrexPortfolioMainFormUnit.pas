@@ -61,6 +61,7 @@ var
   j: integer;
   aTicker: TTicker;
   aByUnit: double;
+  onlybuy: boolean;
 begin
   actRefresh.Enabled := false;
 
@@ -94,6 +95,9 @@ begin
         if fBittrexApi.GetOrderHistory(aOrdersHistory,
           'BTC-' + aBalances[k].Currency) then
         begin
+
+          onlybuy := true;
+
           for j := 0 to aOrdersHistory.Count - 1 do
           begin
             inc(aRow);
@@ -111,10 +115,12 @@ begin
               ffFixed, 8, 8);
 
             // Only information of the latest order
-            if j = 0 then
+            if onlybuy and (aOrdersHistory[j].OrderType = 'LIMIT_BUY') then
+            // if j = 0 then
             begin
               // Price per unit including commision
-              aByUnit := abs(aOrdersHistory[j].Cost / aBalances[k].Available);
+              aByUnit := abs(aOrdersHistory[j].Cost / aOrdersHistory[j]
+                .Quantity); // aBalances[k].Available);
 
               stgrWallet.Cells[7, aRow] := floattostrf(aByUnit, ffFixed, 8, 8);
               //
@@ -129,12 +135,12 @@ begin
                 ffFixed, 8, 2) + '%';
 
               stgrWallet.Cells[10, aRow] :=
-                floattostrf((aTicker.Last * aBalances[k].Available * 1.0025) +
-                aOrdersHistory[j].Cost, ffFixed, 8, 8);
+                floattostrf((aTicker.Last * aOrdersHistory[j].Quantity * 1.0025)
+                + aOrdersHistory[j].Cost, ffFixed, 8, 8);
 
-              // end            else
-              // sgWallet.Cells[6, I] :=   floattostrf((((aTicker.Last * 100) / aByUnit) - 100), ffFixed,      8, 2) + '%';
-            end;
+            end
+            else
+              onlybuy := false;
 
           end;
         end;
@@ -148,9 +154,9 @@ begin
 
   aBalances.Free;
 
-  RefreshMarket;
+  // RefreshMarket;
 
- // aTimer.Enabled := true;
+  // aTimer.Enabled := true;
   actRefresh.Enabled := true;
 end;
 
@@ -235,7 +241,7 @@ begin
           strgCoins.Cells[2, k + 1] := floattostrf(aTicker.Ask, ffFixed, 8, 8);
 
           strgCoins.Cells[3, k + 1] :=
-            floattostrf(((aTicker.Bid * 100) / aTicker.Ask) - 100, ffFixed,
+            floattostrf(100 - ((aTicker.Bid * 100) / aTicker.Ask), ffFixed,
             8, 2) + '%';
 
         end;
