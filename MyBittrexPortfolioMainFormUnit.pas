@@ -19,8 +19,6 @@ type
     PageControl1: TPageControl;
     TabSheet1: TTabSheet;
     stgrWallet: TStringGrid;
-    TabSheet2: TTabSheet;
-    strgCoins: TStringGrid;
     procedure aTimerTimer(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
   private
@@ -29,7 +27,7 @@ type
   public
     { Public declarations }
     constructor Create(Owner: TComponent); override;
-    procedure RefreshMarket;
+    //procedure RefreshMarket;
   end;
 
 var
@@ -72,13 +70,16 @@ begin
   aRow := 0;
 
   aBalances := TBalances.Create;
+  aOrdersHistory := TOrdersHistory.Create;
 
-  if fBittrexApi.GetBalances(aBalances) then
+  if fBittrexApi.GetBalances(aBalances) and fBittrexApi.GetOrderHistory
+    (aOrdersHistory) then
   begin
 
     for k := 0 to aBalances.Count - 1 do
     begin
       stgrWallet.RowCount := stgrWallet.RowCount + 1;
+      stgrWallet.FixedRows := 1;
 
       inc(aRow);
       stgrWallet.Cells[0, aRow] := aBalances[k].Currency;
@@ -90,61 +91,63 @@ begin
       begin
         stgrWallet.Cells[3, aRow] := floattostrf(aTicker.Last, ffFixed, 8, 8);
 
-        aOrdersHistory := TOrdersHistory.Create;
-
-        if fBittrexApi.GetOrderHistory(aOrdersHistory,
-          'BTC-' + aBalances[k].Currency) then
         begin
 
           onlybuy := true;
 
           for j := 0 to aOrdersHistory.Count - 1 do
           begin
-            inc(aRow);
-            stgrWallet.RowCount := stgrWallet.RowCount + 1;
-
-            stgrWallet.Cells[2, aRow] := floattostrf(aOrdersHistory[j].Quantity,
-              ffFixed, 8, 8);
-            stgrWallet.Cells[3, aRow] :=
-              floattostrf(aOrdersHistory[j].PricePerUnit, ffFixed, 8, 8);
-            stgrWallet.Cells[4, aRow] := floattostrf(aOrdersHistory[j].Price,
-              ffFixed, 8, 8);
-            stgrWallet.Cells[5, aRow] :=
-              floattostrf(aOrdersHistory[j].Commision, ffFixed, 8, 8);
-            stgrWallet.Cells[6, aRow] := floattostrf(aOrdersHistory[j].Cost,
-              ffFixed, 8, 8);
-
-            // Only information of the latest order
-            if onlybuy and (aOrdersHistory[j].OrderType = 'LIMIT_BUY') then
-            // if j = 0 then
+            if (aOrdersHistory[j].Exchange = 'BTC-' + aBalances[k].Currency)
+            then
             begin
-              // Price per unit including commision
-              aByUnit := abs(aOrdersHistory[j].Cost / aOrdersHistory[j]
-                .Quantity); // aBalances[k].Available);
 
-              stgrWallet.Cells[7, aRow] := floattostrf(aByUnit, ffFixed, 8, 8);
-              //
+              inc(aRow);
+              stgrWallet.RowCount := stgrWallet.RowCount + 1;
 
-              stgrWallet.Cells[8, aRow] := floattostrf(aTicker.Last,
+              stgrWallet.Cells[2, aRow] :=
+                floattostrf(aOrdersHistory[j].Quantity, ffFixed, 8, 8);
+              stgrWallet.Cells[3, aRow] :=
+                floattostrf(aOrdersHistory[j].PricePerUnit, ffFixed, 8, 8);
+              stgrWallet.Cells[4, aRow] := floattostrf(aOrdersHistory[j].Price,
+                ffFixed, 8, 8);
+              stgrWallet.Cells[5, aRow] :=
+                floattostrf(aOrdersHistory[j].Commision, ffFixed, 8, 8);
+              stgrWallet.Cells[6, aRow] := floattostrf(aOrdersHistory[j].Cost,
                 ffFixed, 8, 8);
 
-              // if aTicker.Last < aByUnit then
-              // begin
-              stgrWallet.Cells[9, aRow] :=
-                floattostrf(((aTicker.Last * 100) / aByUnit) - 100 - FEE,
-                ffFixed, 8, 2) + '%';
+              // Only information of the latest order
+              if onlybuy and (aOrdersHistory[j].OrderType = 'LIMIT_BUY') then
+              // if j = 0 then
+              begin
+                // Price per unit including commision
+                aByUnit := abs(aOrdersHistory[j].Cost / aOrdersHistory[j]
+                  .Quantity); // aBalances[k].Available);
 
-              stgrWallet.Cells[10, aRow] :=
-                floattostrf((aTicker.Last * aOrdersHistory[j].Quantity * 1.0025)
-                + aOrdersHistory[j].Cost, ffFixed, 8, 8);
+                stgrWallet.Cells[7, aRow] :=
+                  floattostrf(aByUnit, ffFixed, 8, 8);
+                //
 
-            end
-            else
-              onlybuy := false;
+                stgrWallet.Cells[8, aRow] :=
+                  floattostrf(aTicker.Last, ffFixed, 8, 8);
 
+                // if aTicker.Last < aByUnit then
+                // begin
+                stgrWallet.Cells[9, aRow] :=
+                  floattostrf(((aTicker.Last * 100) / aByUnit) - 100 - FEE,
+                  ffFixed, 8, 2) + '%';
+
+                stgrWallet.Cells[10, aRow] :=
+                  floattostrf((aTicker.Last * aOrdersHistory[j].Quantity *
+                  1.0025) + aOrdersHistory[j].Cost, ffFixed, 8, 8);
+
+              end
+              else
+                onlybuy := false;
+
+            end;
           end;
         end;
-        aOrdersHistory.Free;
+
       end;
 
       aTicker.Free;
@@ -152,6 +155,7 @@ begin
     end;
   end;
 
+  aOrdersHistory.Free;
   aBalances.Free;
 
   // RefreshMarket;
@@ -167,7 +171,8 @@ var
 begin
   inherited;
 
-  stgrWallet.Cells[2, 0] := 'Quantity';
+  stgrWallet.Cells[1, 0] := 'Quantity';
+  stgrWallet.Cells[2, 0] := 'Quantity per op';
   stgrWallet.Cells[3, 0] := 'Price per unit';
   stgrWallet.Cells[4, 0] := 'Price total';
   stgrWallet.Cells[5, 0] := 'Commision';
@@ -214,6 +219,7 @@ begin
   end;
 end;
 
+{*
 procedure TMyBittexPortfolioMainForm.RefreshMarket;
 var
   aMarkets: TMarkets;
@@ -253,5 +259,5 @@ begin
 
   aMarkets.Free;
 end;
-
+  *}
 end.

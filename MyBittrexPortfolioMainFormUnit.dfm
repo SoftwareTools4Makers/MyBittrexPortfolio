@@ -49,50 +49,13 @@ object MyBittexPortfolioMainForm: TMyBittexPortfolioMainForm
         Width = 892
         Height = 427
         Align = alClient
-        ColCount = 12
+        ColCount = 11
         DefaultColWidth = 80
         DefaultRowHeight = 18
         DoubleBuffered = True
         ParentDoubleBuffered = False
         TabOrder = 0
         ColWidths = (
-          80
-          80
-          80
-          80
-          80
-          80
-          80
-          80
-          80
-          80
-          80
-          80)
-        RowHeights = (
-          18
-          18
-          18
-          18
-          18)
-      end
-    end
-    object TabSheet2: TTabSheet
-      Caption = 'TabSheet2'
-      ImageIndex = 1
-      object strgCoins: TStringGrid
-        Left = 0
-        Top = 0
-        Width = 892
-        Height = 427
-        Align = alClient
-        ColCount = 12
-        DefaultColWidth = 80
-        DefaultRowHeight = 18
-        DoubleBuffered = True
-        ParentDoubleBuffered = False
-        TabOrder = 0
-        ColWidths = (
-          80
           80
           80
           80
