@@ -21,13 +21,15 @@ type
     stgrWallet: TStringGrid;
     procedure aTimerTimer(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
+    procedure stgrWalletMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     { Private declarations }
     fBittrexApi: TBittrexAPI;
   public
     { Public declarations }
     constructor Create(Owner: TComponent); override;
-    //procedure RefreshMarket;
+    // procedure RefreshMarket;
   end;
 
 var
@@ -37,13 +39,19 @@ implementation
 
 uses
   System.UITypes,
-  inifiles;
+  inifiles,
+  Winapi.ShellAPI;
 
 const
   FEE = 0.25;
 
 {$R *.dfm}
   { TForm3 }
+
+procedure JumpToUrl(const aURL: string);
+begin
+  ShellExecute(0, 'open', pchar(aURL), nil, nil, SW_NORMAL);
+end;
 
 procedure TMyBittexPortfolioMainForm.actRefreshExecute(Sender: TObject);
 begin
@@ -54,9 +62,9 @@ procedure TMyBittexPortfolioMainForm.aTimerTimer(Sender: TObject);
 var
   aBalances: TBalances;
   aOrdersHistory: TOrdersHistory;
-  k: integer;
-  aRow: integer;
-  j: integer;
+  k: Integer;
+  aRow: Integer;
+  j: Integer;
   aTicker: TTicker;
   aByUnit: double;
   onlybuy: boolean;
@@ -219,45 +227,78 @@ begin
   end;
 end;
 
-{*
-procedure TMyBittexPortfolioMainForm.RefreshMarket;
+procedure TMyBittexPortfolioMainForm.stgrWalletMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
+  grid: TStringGrid;
+  col, row: Integer;
+  fixedCol, fixedRow: boolean;
+begin
+  grid := Sender as TStringGrid;
+
+  if Button = mbLeft then
+  begin
+    grid.MouseToCell(X, Y, col, row);
+
+    fixedCol := col < grid.FixedCols;
+    fixedRow := row < grid.FixedRows;
+
+    if (fixedCol and fixedRow) then
+      // Right-click in "header hub"
+
+    else if fixedRow then
+      // Right-click in a "column header"
+
+    else if fixedCol then
+    begin
+      // Right-click in a "row header"
+      JumpToUrl(format('https://bittrex.com/Market/Index?MarketName=BTC-%s',[ grid.Cells[col,row]]));
+    end
+    else
+      // Right-click in a non-fixed cell
+  end;
+end;
+
+// JumpToUrl(format('https://bittrex.com/Market/Index?MarketName=%s',    [aMarket.MarketName]));
+{ *
+  procedure TMyBittexPortfolioMainForm.RefreshMarket;
+  var
   aMarkets: TMarkets;
   aTicker: TTicker;
   k: integer;
-begin
+  begin
   aMarkets := TMarkets.Create;
 
   if fBittrexApi.GetMarkets(aMarkets) then
   begin
-    strgCoins.RowCount := aMarkets.Count;
+  strgCoins.RowCount := aMarkets.Count;
 
-    for k := 0 to aMarkets.Count - 1 do
-    begin
-      strgCoins.Cells[0, k + 1] := aMarkets[k].MarketCurrency;
+  for k := 0 to aMarkets.Count - 1 do
+  begin
+  strgCoins.Cells[0, k + 1] := aMarkets[k].MarketCurrency;
 
-      aTicker := TTicker.Create;
+  aTicker := TTicker.Create;
 
-      if aMarkets[k].IsActive then
-      begin
-        if fBittrexApi.GetTicker('BTC-' + aMarkets[k].MarketCurrency, aTicker)
-        then
-        begin
-          strgCoins.Cells[1, k + 1] := floattostrf(aTicker.Bid, ffFixed, 8, 8);
-          strgCoins.Cells[2, k + 1] := floattostrf(aTicker.Ask, ffFixed, 8, 8);
+  if aMarkets[k].IsActive then
+  begin
+  if fBittrexApi.GetTicker('BTC-' + aMarkets[k].MarketCurrency, aTicker)
+  then
+  begin
+  strgCoins.Cells[1, k + 1] := floattostrf(aTicker.Bid, ffFixed, 8, 8);
+  strgCoins.Cells[2, k + 1] := floattostrf(aTicker.Ask, ffFixed, 8, 8);
 
-          strgCoins.Cells[3, k + 1] :=
-            floattostrf(100 - ((aTicker.Bid * 100) / aTicker.Ask), ffFixed,
-            8, 2) + '%';
+  strgCoins.Cells[3, k + 1] :=
+  floattostrf(100 - ((aTicker.Bid * 100) / aTicker.Ask), ffFixed,
+  8, 2) + '%';
 
-        end;
-        aTicker.Free;
-      end;
+  end;
+  aTicker.Free;
+  end;
 
-    end;
+  end;
   end;
 
   aMarkets.Free;
-end;
-  *}
+  end;
+  * }
 end.

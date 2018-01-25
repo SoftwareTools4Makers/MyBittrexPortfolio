@@ -55,6 +55,7 @@ object MyBittexPortfolioMainForm: TMyBittexPortfolioMainForm
         DoubleBuffered = True
         ParentDoubleBuffered = False
         TabOrder = 0
+        OnMouseDown = stgrWalletMouseDown
         ColWidths = (
           80
           80
