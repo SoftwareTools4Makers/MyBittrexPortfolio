@@ -2,8 +2,8 @@ object MyBittexPortfolioMainForm: TMyBittexPortfolioMainForm
   Left = 0
   Top = 0
   Caption = 'My Bittrex Wallet'
-  ClientHeight = 478
-  ClientWidth = 900
+  ClientHeight = 576
+  ClientWidth = 1078
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,7 +16,7 @@ object MyBittexPortfolioMainForm: TMyBittexPortfolioMainForm
   object ActionToolBar1: TActionToolBar
     Left = 0
     Top = 0
-    Width = 900
+    Width = 1078
     Height = 23
     ActionManager = ActionManager1
     Caption = 'ActionToolBar1'
@@ -32,22 +32,27 @@ object MyBittexPortfolioMainForm: TMyBittexPortfolioMainForm
     Font.Style = []
     ParentFont = False
     Spacing = 0
+    ExplicitWidth = 900
   end
   object PageControl1: TPageControl
     Left = 0
     Top = 23
-    Width = 900
-    Height = 455
+    Width = 1078
+    Height = 553
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 1
+    ExplicitWidth = 900
+    ExplicitHeight = 455
     object TabSheet1: TTabSheet
       Caption = 'Bittrex Portfolio'
+      ExplicitWidth = 892
+      ExplicitHeight = 427
       object stgrWallet: TStringGrid
         Left = 0
         Top = 0
-        Width = 892
-        Height = 427
+        Width = 1070
+        Height = 525
         Align = alClient
         ColCount = 11
         DefaultColWidth = 80
@@ -56,6 +61,8 @@ object MyBittexPortfolioMainForm: TMyBittexPortfolioMainForm
         ParentDoubleBuffered = False
         TabOrder = 0
         OnMouseDown = stgrWalletMouseDown
+        ExplicitWidth = 892
+        ExplicitHeight = 427
         ColWidths = (
           80
           80
